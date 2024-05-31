@@ -26,6 +26,27 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+단축 URL API
+
+```bash
+METHOD : POST
+/create
+  param
+    url : 단축하고자 하는 원본 url
+    
+METHOD : GET
+/:shortUrl
+  연결된 원본 url 로 redirect
+   
+METHOD : POST 
+/clean
+  접속 횟수가 10회 미만이며 생성된지 7일이 지난 url 삭제
+  
+METHOD : GET
+/urls
+  모든 단축 url 데이터
+```
+
 ## Installation
 
 ```bash
@@ -43,19 +64,6 @@ $ npm run start:dev
 
 # production mode
 $ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
 ## Support
