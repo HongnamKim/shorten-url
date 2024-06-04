@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as base62 from 'base62';
+import { PaginateUrlDto } from './dto/paginate-url.dto';
 
 type urlMap = {
   longUrl: string;
@@ -19,10 +20,44 @@ export class AppService {
     return Array.from(this.urlDB);
   }
 
-  createShortUrl(url: string) {
+  paginateUrls(dto: PaginateUrlDto) {
+    const datas = Array.from(this.urlDB);
+
+    let begin, end;
+
+    if (dto.where__id__more_than || true) {
+      // 오름차순
+      datas.sort((a, b) => a[1].visits - b[1].visits);
+      //begin = dto.where__id__more_than - 1;
+      //end = begin + dto.take;
+      begin = 0;
+      end = 20;
+    } else if (dto.where__id__less_than) {
+      // 내림차순
+      datas.sort((a, b) => b[1].visits - a[1].visits);
+      begin = dto.where__id__less_than - 1;
+      end = begin - dto.take;
+    }
+
+    //console.log(datas);
+    const results = datas.slice(begin, end);
+    console.log(results.length);
+    return results;
+  }
+
+  generateDummyData() {
+    for (let i = 0; i < 100; i++) {
+      this.createShortUrl(
+        `www.test-url-${i}.com`,
+        Math.floor(Math.random() * 50),
+      );
+    }
+  }
+
+  createShortUrl(url: string, visits?: number) {
     const newRow: urlMap = {
       longUrl: url,
-      visits: 0,
+      visits: visits ? visits : 0,
       createdAt: new Date(),
     };
 
@@ -39,8 +74,6 @@ export class AppService {
     const originIndex = base62.decode(shortUrl);
     const urlMap = this.urlDB.get(originIndex);
     urlMap.visits++;
-
-    console.log(this.urlDB.values());
 
     return 'https://' + urlMap.longUrl;
   }

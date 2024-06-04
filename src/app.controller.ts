@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, Redirect } from '@nestjs/common';
 import { AppService } from './app.service';
+import { PaginateUrlDto } from './dto/paginate-url.dto';
 
 @Controller()
 export class AppController {
@@ -8,6 +9,11 @@ export class AppController {
   @Get('urls')
   getAllUrls() {
     return this.appService.getAllUrls();
+  }
+
+  @Get('pg-urls')
+  getPaginatedUrls() {
+    return this.appService.paginateUrls(new PaginateUrlDto());
   }
 
   @Post('create')
@@ -25,6 +31,13 @@ export class AppController {
   @Post('clean')
   cleanUpUrlDb() {
     this.appService.cleanUpDb();
+
+    return 'ok';
+  }
+
+  @Post('create-dummy')
+  createDummyUrls() {
+    this.appService.generateDummyData();
 
     return 'ok';
   }
