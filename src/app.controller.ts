@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Redirect } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Redirect,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { PaginateUrlDto } from './dto/paginate-url.dto';
 
@@ -12,8 +20,9 @@ export class AppController {
   }
 
   @Get('pg-urls')
-  getPaginatedUrls() {
-    return this.appService.paginateUrls(new PaginateUrlDto());
+  getPaginatedUrls(@Query() body: PaginateUrlDto) {
+    console.log(body);
+    return this.appService.paginateUrls(body);
   }
 
   @Post('create')

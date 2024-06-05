@@ -25,24 +25,30 @@ export class AppService {
 
     let begin, end;
 
-    if (dto.where__id__more_than || true) {
+    if (['asc', 'ASC'].includes(dto.order__visits)) {
       // 오름차순
       datas.sort((a, b) => a[1].visits - b[1].visits);
-      //begin = dto.where__id__more_than - 1;
-      //end = begin + dto.take;
-      begin = 0;
-      end = 20;
-    } else if (dto.where__id__less_than) {
+      begin = dto.cursorStart - 1;
+      end = begin + dto.take;
+      //begin = 0;
+      //end = 20;
+    } else if (['desc', 'DESC'].includes(dto.order__visits)) {
       // 내림차순
       datas.sort((a, b) => b[1].visits - a[1].visits);
-      begin = dto.where__id__less_than - 1;
-      end = begin - dto.take;
+      begin = dto.cursorStart - 1;
+      end = begin + dto.take;
     }
 
     //console.log(datas);
     const results = datas.slice(begin, end);
-    console.log(results.length);
-    return results;
+
+    return {
+      data: results,
+      metadata: {
+        count: results.length,
+        nextCursor: end + 1,
+      },
+    };
   }
 
   generateDummyData() {
