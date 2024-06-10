@@ -21,32 +21,81 @@ export class AppService {
   }
 
   paginateUrls(dto: PaginateUrlDto) {
-    const datas = Array.from(this.urlDB);
+    let datas = Array.from(this.urlDB);
 
     let begin, end;
 
+    begin = dto.cursorStartVisits - 1;
+
     if (['asc', 'ASC'].includes(dto.order__visits)) {
       // 오름차순
-      datas.sort((a, b) => a[1].visits - b[1].visits);
-      begin = dto.cursorStart - 1;
+      datas.sort((a, b) => {
+        if (a[1].visits === b[1].visits) {
+          // 방문 횟수 동일할 경우 id 순
+          return a[0] - b[0];
+        } else {
+          return a[1].visits - b[1].visits;
+        }
+      });
+
+      let datasIds;
+      let datasVisits;
+
+      // 조회수 기준 필터링
+      // 커서가 존재할 경우 커서 조회수 이상 데이터만 필터링
+      if (dto.cursorStartVisits) {
+        datasIds = datas.filter(
+          (value) =>
+            value[1].visits === dto.cursorStartVisits &&
+            value[0] > dto.cursorStartId,
+        );
+
+        datasVisits = datas.filter(
+          (value) => value[1].visits > dto.cursorStartVisits,
+        );
+
+        datas = [...datasIds, ...datasVisits];
+      } else {
+        begin = 0;
+      }
+
       end = begin + dto.take;
       //begin = 0;
       //end = 20;
     } else if (['desc', 'DESC'].includes(dto.order__visits)) {
       // 내림차순
-      datas.sort((a, b) => b[1].visits - a[1].visits);
-      begin = dto.cursorStart - 1;
+      datas.sort((a, b) => {
+        if (b[1].visits === a[1].visits) {
+          // 방문 횟수 동일할 경우 최신순
+          return a[0] - b[0];
+        } else {
+          return b[1].visits - a[1].visits;
+        }
+      });
+
+      // 조회수 기준 필터링
+      // 커서가 존재할 경우 커서 조회수 이하 데이터만 필터링
+      if (dto.cursorStartVisits) {
+        datas = datas.filter(
+          (value) => value[1].visits < dto.cursorStartVisits,
+        );
+      }
+
+      begin = dto.cursorStartVisits - 1;
       end = begin + dto.take;
     }
 
     //console.log(datas);
+    console.log(begin);
+    console.log(end);
     const results = datas.slice(begin, end);
 
     return {
       data: results,
       metadata: {
         count: results.length,
-        nextCursor: end + 1,
+        nextCursorVisits: results[results.length - 1][1].visits,
+        nextCursorId: results[results.length - 1][0],
       },
     };
   }

@@ -11,7 +11,11 @@ export class PaginateUrlDto {
 
   @IsNumber()
   @IsOptional()
-  cursorStart: number;
+  cursorStartId: number;
+
+  @IsNumber()
+  @IsOptional()
+  cursorStartVisits: number;
 
   /*@IsNumber()
   @IsOptional()
