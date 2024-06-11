@@ -23,10 +23,6 @@ export class AppService {
   paginateUrls(dto: PaginateUrlDto) {
     let datas = Array.from(this.urlDB);
 
-    let begin, end;
-
-    begin = dto.cursorStartVisits - 1;
-
     if (['asc', 'ASC'].includes(dto.order__visits)) {
       // 오름차순
       datas.sort((a, b) => {
@@ -55,13 +51,7 @@ export class AppService {
         );
 
         datas = [...datasIds, ...datasVisits];
-      } else {
-        begin = 0;
       }
-
-      end = begin + dto.take;
-      //begin = 0;
-      //end = 20;
     } else if (['desc', 'DESC'].includes(dto.order__visits)) {
       // 내림차순
       datas.sort((a, b) => {
@@ -73,22 +63,28 @@ export class AppService {
         }
       });
 
+      let datasIds;
+      let datasVisits;
+
       // 조회수 기준 필터링
       // 커서가 존재할 경우 커서 조회수 이하 데이터만 필터링
       if (dto.cursorStartVisits) {
-        datas = datas.filter(
+        datasIds = datas.filter(
+          (value) =>
+            value[1].visits === dto.cursorStartVisits &&
+            value[0] > dto.cursorStartId,
+        );
+
+        datasVisits = datas.filter(
           (value) => value[1].visits < dto.cursorStartVisits,
         );
-      }
 
-      begin = dto.cursorStartVisits - 1;
-      end = begin + dto.take;
+        datas = [...datasIds, ...datasVisits];
+      }
     }
 
     //console.log(datas);
-    console.log(begin);
-    console.log(end);
-    const results = datas.slice(begin, end);
+    const results = datas.slice(0, dto.take);
 
     return {
       data: results,
@@ -96,6 +92,7 @@ export class AppService {
         count: results.length,
         nextCursorVisits: results[results.length - 1][1].visits,
         nextCursorId: results[results.length - 1][0],
+        nextUrl: `http://localhost:3000/pg-urls?order__visits=${dto.order__visits}&take=${dto.take}&cursorStartId=${results[results.length - 1][0]}&cursorStartVisits=${results[results.length - 1][1].visits}`,
       },
     };
   }

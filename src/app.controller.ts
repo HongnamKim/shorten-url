@@ -22,7 +22,7 @@ export class AppController {
   @Get('pg-urls')
   getPaginatedUrls(@Query() body: PaginateUrlDto) {
     console.log(body);
-    //return this.appService.paginateUrls(body);
+    return this.appService.paginateUrls(body);
   }
 
   @Post('create')
